@@ -717,7 +717,7 @@ sldl --help
 
 The compose stack mounts two directories relative to where `docker-compose.yml` is located which can be used for file management:
 
-* `/config` (at `./config` on host) - put your `sldl.conf` [configuration](#configuration-) in this directory and then use `sldl -c /config ...` to use your configuration in the container
+* `/config` (at `./config` on host) - put your `sldl.conf` [configuration](#configuration) in this directory and then use `sldl -c /config ...` to use your configuration in the container
 * `/data` (at `./data` on host) - use as the download directory IE `sldl -p /data ...`
 
 ### File Permissions
