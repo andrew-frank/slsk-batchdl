@@ -5,7 +5,7 @@ services:
     build:
       context: .
     environment:
-      - TZ=Etc/GMT # Specify timezone from TZ Database name found here https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+      - TZ=Europe/Warsaw # Specify timezone from TZ Database name found here https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
       #- PUID=1000 # recommended if running docker on linux host, see main README Docker setup instructions
       #- PGID=1000 # recommended if running docker on linux host, see main README Docker setup instructions
     volumes:
