@@ -1,4 +1,4 @@
-.PHONY: up down sldl
+.PHONY: up down sldl spotify-login setup
 
 up:
 	docker compose up -d
@@ -18,6 +18,14 @@ spotify-login:
 	@echo "📋 Copy the 'spotify-refresh=' token from the output and add it to your config"
 	@echo ""
 	docker compose exec sldl sldl spotify-likes -c /config/sldl.conf -n 1 --print tracks
+
+setup:
+	@if [ ! -f ./config/sldl.conf ]; then \
+		cp sldl.example.conf ./config/sldl.conf && \
+		echo "⚠️  Please edit './config/sldl.conf' with your credentials"; \
+	else \
+		echo "ℹ️  ./config/sldl.conf already exists"; \
+	fi
 
 # catch-all rule to prevent Make from trying to execute arguments as targets
 %:
