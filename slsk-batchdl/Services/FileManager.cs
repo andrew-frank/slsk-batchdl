@@ -62,9 +62,9 @@ public class FileManager
         this.defaultFolderName = defaultFolderName != null ? Utils.NormalizedPath(defaultFolderName) : null;
     }
 
-    public void OrganizeAlbum(Track source, List<Track> tracks, List<Track>? additionalImages, bool remainingOnly = true)
+    public void OrganizeAlbum(Track source, List<Track> allDownloadedFiles, List<Track>? additionalImages, bool remainingOnly = true)
     {
-        foreach (var track in tracks.Where(t => !t.IsNotAudio))
+        foreach (var track in allDownloadedFiles.Where(t => !t.IsNotAudio))
         {
             if (remainingOnly && organized.Contains(track))
                 continue;
@@ -72,15 +72,15 @@ public class FileManager
             OrganizeAudio(track, track.FirstDownload);
         }
 
-        source.DownloadPath = Utils.GreatestCommonDirectory(tracks.Where(t => !t.IsNotAudio).Select(t => t.DownloadPath));
+        source.DownloadPath = Utils.GreatestCommonDirectory(allDownloadedFiles.Where(t => !t.IsNotAudio).Select(t => t.DownloadPath));
 
-        var nonAudioToOrganize = string.IsNullOrEmpty(config.nameFormat) ? additionalImages : tracks.Where(t => t.IsNotAudio);
+        var nonAudioToOrganize = string.IsNullOrEmpty(config.nameFormat) ? additionalImages : allDownloadedFiles.Where(t => t.IsNotAudio);
 
         if (nonAudioToOrganize == null || !nonAudioToOrganize.Any())
             return;
 
         string parent = Utils.GreatestCommonDirectory(
-            tracks.Where(t => !t.IsNotAudio && t.State == TrackState.Downloaded && t.DownloadPath.Length > 0).Select(t => t.DownloadPath));
+            allDownloadedFiles.Where(t => !t.IsNotAudio && t.State == TrackState.Downloaded && t.DownloadPath.Length > 0).Select(t => t.DownloadPath));
 
         foreach (var track in nonAudioToOrganize)
         {
@@ -105,14 +105,18 @@ public class FileManager
         string pathPart = ApplyNameFormat(config.nameFormat, track, file);
         string newFilePath = Path.Join(config.parentDir, pathPart + Path.GetExtension(track.DownloadPath));
 
-        try
+        if (Utils.NormalizedPath(newFilePath) != Utils.NormalizedPath(track.DownloadPath))
         {
-            Utils.MoveAndDeleteParent(track.DownloadPath, newFilePath, config.parentDir);
-        }
-        catch (Exception ex)
-        {
-            Logger.Error($"Failed to move: {ex.Message}");
-            return;
+            try
+            {
+                Utils.MoveAndDeleteParent(track.DownloadPath, newFilePath, config.parentDir);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Failed to move: {ex}");
+                return;
+            }
+
         }
 
         track.DownloadPath = newFilePath;
@@ -136,14 +140,17 @@ public class FileManager
 
         string newFilePath = Path.Join(parent, part, Path.GetFileName(track.DownloadPath));
 
-        try
+        if (Utils.NormalizedPath(newFilePath) != Utils.NormalizedPath(track.DownloadPath))
         {
-            Utils.MoveAndDeleteParent(track.DownloadPath, newFilePath, config.parentDir);
-        }
-        catch (Exception ex)
-        {
-            Logger.Error($"Failed to move: {ex.Message}");
-            return;
+            try
+            {
+                Utils.MoveAndDeleteParent(track.DownloadPath, newFilePath, config.parentDir);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Failed to move: {ex}");
+                return;
+            }
         }
 
         track.DownloadPath = newFilePath;
